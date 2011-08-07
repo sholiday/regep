@@ -10,12 +10,31 @@ Copyright (c) 2011 Stephen Holiday. All rights reserved.
 import sys
 import os
 import re
+from optparse import OptionParser
 
 def main():
-    try:
-        argv = sys.argv
-        regex=re.compile(argv[1])
+    usage = "usage: %prog [options] RegExp"
+    parser = OptionParser(usage)
+    parser.add_option("-l", "--list",
+                      action="store_true", dest="show_list",
+                      help="Output as a python list")
+
+    (options, args) = parser.parse_args()
+    if len(args) != 1:
+        parser.print_help()
+        parser.error("incorrect number of arguments")
+        
     
+    regep(options.show_list,args)
+    exit()
+        
+def regep(show_list,args):
+    try:
+        try:
+            regex=re.compile(args[0])
+        except:
+            print 'Regexp is invalid'
+            exit()
         line=""
         while 1:
             next = sys.stdin.read(1)            # read a one-character string
@@ -26,7 +45,10 @@ def main():
                 match=regex.search(line)
             
                 if match is not None:
-                    print match.groups()
+                    if show_list:
+                        print list(match.groups())
+                    else:
+                        print '\t'.join(match.groups())
                 else:
                     pass
                 line=''
